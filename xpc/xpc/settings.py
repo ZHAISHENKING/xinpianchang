@@ -14,6 +14,11 @@ BOT_NAME = 'xpc'
 SPIDER_MODULES = ['xpc.spiders']
 NEWSPIDER_MODULE = 'xpc.spiders'
 
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+REDIS_URL = 'redis://127.0.0.1:6379'
+# 在redis中持久化爬虫状态
+SCHEDULER_PERSIST = True
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
@@ -26,7 +31,7 @@ ROBOTSTXT_OBEY = True
 HTTPPROXY_ENABLED = True
 PROXIES = ['http://106.15.182.187:1801',
            'http://39.108.132.76:1801',
-           'http://193.168.1.39:1801',
+           'http://192.168.1.39:1801',
  'http://47.98.199.40:1801',
  'http://47.104.229.81:1801',
  'http://101.132.167.29:1801',
@@ -91,7 +96,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'xpc.pipelines.MysqlPipeline': 300,
+    'xpc.pipelines.MysqlPipeline': 300,
+    'scrapy_redis.pipelines.RedisPipeline': 301,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
