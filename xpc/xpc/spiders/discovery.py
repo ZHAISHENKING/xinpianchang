@@ -2,6 +2,7 @@
 import json
 import scrapy
 from scrapy import Request
+from scrapy_redis.spiders import RedisSpider
 from xpc.items import PostItem, CommentItem, ComposerItem, CopyrightItem
 
 def conver_int(s):
@@ -20,11 +21,11 @@ def conver_int(s):
 ci = conver_int
 
 
-class DiscoverySpider(scrapy.Spider):
+class DiscoverySpider(RedisSpider):
     name = 'discovery'
     allowed_domains = ['xinpianchang.com']
     # start_urls = ['http://www.xinpianchang.com/channel/index/sort-like?from=tabArticle']
-    start_urls = ['http://www.xinpianchang.com/channel/index/type-0/sort-like/duration_type-0/resolution_type-/page-21']
+    # start_urls = ['http://www.xinpianchang.com/channel/index/type-0/sort-like/duration_type-0/resolution_type-/page-21']
 
     def start_requests(self):
         """重载scrapy.Spider类的start_requests函数，以设置meta信息"""
@@ -34,6 +35,12 @@ class DiscoverySpider(scrapy.Spider):
             request = Request(url, dont_filter=True)
             request.meta['dont_merge_cookies'] = True
             yield request
+
+    def make_requests_from_url(self, url):
+        request = Request(url, dont_filter=True)
+        request.meta['dont_merge_cookies'] = True
+        return request
+
 
     def parse(self, response):
         """处理视频列表页面"""
@@ -162,7 +169,7 @@ class DiscoverySpider(scrapy.Spider):
             composer['location'] = location.strip().replace('\xa0', '-')
         # 用户的职业，xpath同上
         composer['career'] = response.xpath(
-            '//span[contains(@class, "icon-career")]/following-sibling::span[1]/text()').get()
+            '//span[contains(@class, "icon-career")]/following-sibling::span[1]/text()').get() or ''
         yield composer
 
     def parse_comment(self, response):
@@ -191,7 +198,7 @@ class DiscoverySpider(scrapy.Spider):
             # 如果本条评论是回复另一条评论，则reply不为空
             if c['reply']:
                 # 把被回复的那条评论ID存在reply字段
-                comment['reply'] = c['reply']['commentid']
+                comment['reply'] = c['reply']['commentid'] or 0
             yield comment
 
         # 是否还有下一页评论
