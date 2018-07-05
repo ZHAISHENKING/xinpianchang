@@ -18,8 +18,8 @@ class MysqlPipeline(object):
             host='127.0.0.1',
             port=3306,
             user='root',
-            password='Jiege..950417',
-            db='xpc_hz1801',
+            password='',
+            db='',
             charset='utf8mb4',
         )
         self.cur = self.conn.cursor()
